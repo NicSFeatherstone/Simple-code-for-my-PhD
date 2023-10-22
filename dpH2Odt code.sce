@@ -12,13 +12,15 @@ Vmol = 22.4                     //mL/mmol
 MH2O = 18                       //mol/g
 
 //Reactor Constants
-Conversion = 0                  //Conversion of CO2
+X = 0                           //Conversion of CO2
 V = 500                         //mL
 T = 280+273.15                  //K
 Ptot = 20                       //bar
 PCO2In = 1/4.5*Ptot             //Partial Pressure of CO2
 ntot = (Ptot*V)/(R*T)           //mmol
-PH2O0 = PCO2In*2*Conversion     //bar, partial pressure of water before addition of liquid water, based on conversion of CO2 assuming formation of hydrocarbons (no CO)
+PH2O0 = 0                       //bar starting partial pressure of water for the equation
+
+PH2OReaction = PCO2In*2*X       //Partial pressure of water contribution based on conversion of CO2 assuming formation of hydrocarbons (no CO) - it is assumed that this is constant and that the addition of water does not affect conversion and thus does not affect this value.
 
 //Flow Constants
 RestInml = 112.5                //ml/min
@@ -55,7 +57,7 @@ endfunction
 to = 0                          //time water added: 0 min
 tup = linspace(to,H2OFlowtime,1000)
 
-Pupvec = ode(PH2O0, to, tup, dpH2Odtup)
+Pupvec = ode(PH2O0, to, tup, dpH2Odtup)+PH2OReaction
 
 PGreaterUp = []
 TimeStart = 0
@@ -78,7 +80,7 @@ end
 tdown = linspace(tup($),1000,1000)
 PH2O1 = Pupvec($)
 
-Pdownvec = ode(PH2O1, tup($), tdown, dpH2Odtdown)
+Pdownvec = ode(PH2O1, tup($), tdown, dpH2Odtdown)+PH2OReaction
 
 PGreaterDown = []
 TimeEnd = 0
